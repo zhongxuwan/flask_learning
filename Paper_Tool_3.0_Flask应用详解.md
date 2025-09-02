@@ -52,17 +52,16 @@ graph TB
 ### 核心应用创建
 
 ```python
-# app.py 第39行开始
-from flask import Flask, render_template, request, jsonify, redirect, url_for, send_from_directory, flash, session
-from flask_login import LoginManager, login_user, logout_user, login_required, current_user
-from flask_sqlalchemy import SQLAlchemy
-import secrets
+# 代码来源：app.py
+from flask import Flask, render_template, request, jsonify, redirect, url_for, send_from_directory, flash, session  # 第1行
+from flask_login import LoginManager, login_user, logout_user, login_required, current_user  # 第22行
+import secrets  # 第23行
 
 # 创建Flask应用实例
-app = Flask(__name__)
+app = Flask(__name__)  # 第39行
 
 # 安全配置
-app.secret_key = secrets.token_hex(16)  # 生成随机密钥用于session
+app.secret_key = secrets.token_hex(16)  # 第40行，生成随机密钥用于session
 ```
 
 **逐行代码详解**：
@@ -141,12 +140,12 @@ os.urandom(16).hex()     # 系统随机数
 ### 数据库配置
 
 ```python
-# 数据库配置 (app.py 第42-47行)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(current_dir, 'users.db')
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+# 代码来源：app.py，数据库配置部分
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(current_dir, 'users.db')  # 第43行
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  # 第44行
 
 # 初始化数据库
-db.init_app(app)
+db.init_app(app)  # 第47行
 ```
 
 **逐行代码详解**：
@@ -238,13 +237,13 @@ db.init_app(app)
 ### 文件上传配置
 
 ```python
-# 文件处理配置 (app.py 第94-97行)
-app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB限制
-app.config['UPLOAD_FOLDER'] = os.path.join(current_dir, UPLOAD_FOLDER)
-app.config['DOWNLOAD_FOLDER'] = os.path.join(current_dir, DOWNLOAD_FOLDER)
+# 代码来源：app.py，文件处理配置部分
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 第95行，16MB限制
+app.config['UPLOAD_FOLDER'] = os.path.join(current_dir, UPLOAD_FOLDER)  # 第96行
+app.config['DOWNLOAD_FOLDER'] = os.path.join(current_dir, DOWNLOAD_FOLDER)  # 第97行
 
 # 允许的文件扩展名
-ALLOWED_EXTENSIONS = {'txt', 'docx', 'doc', 'tex', 'latex', 'pdf'}
+ALLOWED_EXTENSIONS = {'txt', 'docx', 'doc', 'tex', 'latex', 'pdf'}  # 第78行
 ```
 
 **逐行代码详解**：
@@ -370,12 +369,13 @@ Paper Tool 3.0 拥有29个主要路由，每个路由处理不同的业务功能
 ### 1. 首页路由 - 智能导航
 
 ```python
-@app.route('/')
-def index():
+# 代码来源：app.py，首页路由
+@app.route('/')  # 第769行
+def index():  # 第770行
     """根据用户登录状态显示不同页面"""
-    if current_user.is_authenticated:
-        return render_template('index.html', user=current_user, credits=current_user.credits)
-    return render_template('landing.html')  # 未登录用户显示登陆页
+    if current_user.is_authenticated:  # 第770行
+        return render_template('index.html', user=current_user, credits=current_user.credits)  # 第771行
+    return render_template('landing.html')  # 第772行，未登录用户显示登陆页
 ```
 
 **逐行代码详解**：
@@ -486,40 +486,41 @@ else:
 ### 2. 文献搜索路由 - 核心功能
 
 ```python
-@app.route('/search', methods=['POST'])
-@login_required
-def search():
+# 代码来源：app.py，文献搜索核心路由
+@app.route('/search', methods=['POST'])  # 第774行
+@login_required  # 第775行
+def search():  # 第776行
     """文献搜索的核心路由"""
-    global search_status
+    global search_status  # 第777行
     
     # 1. 权限检查
-    if not check_credits_for_action('search'):
-        return jsonify({"error": "积分不足，无法执行搜索操作"}), 403
+    if not check_credits_for_action('search'):  # 第780行
+        return jsonify({"error": "积分不足，无法执行搜索操作"}), 403  # 第781行
     
     # 2. 状态检查 - 防止重复搜索
-    if search_status["is_searching"]:
-        return jsonify({"error": "搜索已在进行中"}), 400
+    if search_status["is_searching"]:  # 第784行
+        return jsonify({"error": "搜索已在进行中"}), 400  # 第785行
     
     # 3. 参数获取和验证
-    keywords = request.form.get('keywords', '').strip()
-    num = int(request.form.get('num', 40))
-    pub_type = request.form.get('pub_type', 'ALL').strip().upper()
-    analyse = request.form.get('analyse', 'false').lower() == 'true'
+    keywords = request.form.get('keywords', '').strip()  # 第788行
+    num = int(request.form.get('num', 40))  # 第789行
+    pub_type = request.form.get('pub_type', 'ALL').strip().upper()  # 第790行
+    analyse = request.form.get('analyse', 'false').lower() == 'true'  # 第791行
     
     # 4. 积分扣除
-    deduct_credits_for_action('search', f'搜索关键词：{keywords}')
-    if analyse:
-        deduct_credits_for_action('analyze', f'分析关键词：{keywords}')
+    deduct_credits_for_action('search', f'搜索关键词：{keywords}')  # 第798行
+    if analyse:  # 第799行
+        deduct_credits_for_action('analyze', f'分析关键词：{keywords}')  # 第800行
     
     # 5. 异步搜索启动
-    search_thread = threading.Thread(
-        target=perform_search,
+    search_thread = threading.Thread(  # 第818行
+        target=perform_search,  # 第819行
         args=(keywords, num, pub_type)
     )
-    search_thread.daemon = True
-    search_thread.start()
+    search_thread.daemon = True  # 第822行
+    search_thread.start()  # 第823行
     
-    return jsonify({"message": "搜索已开始"}), 200
+    return jsonify({"message": "搜索已开始"}), 200  # 第825行
 ```
 
 **逐行代码详解**：
@@ -672,11 +673,12 @@ analyse = request.form.get('analyse', 'false').lower() == 'true'  # 字符串转
 ### 3. 搜索状态查询路由
 
 ```python
-@app.route('/search-status')
-def search_status_route():
+# 代码来源：app.py，搜索状态查询路由
+@app.route('/search-status')  # 第827行
+def search_status_route():  # 第828行
     """实时查询搜索进度"""
-    global search_status
-    return jsonify(search_status)
+    global search_status  # 第829行
+    return jsonify(search_status)  # 第830行
 ```
 
 **应用场景**：
@@ -687,26 +689,20 @@ def search_status_route():
 ### 4. 文件下载路由 - 安全处理
 
 ```python
-@app.route('/download/<filename>')
-def download_file(filename):
-    """安全的文件下载处理"""
-    try:
-        # 安全文件名处理
-        safe_filename = secure_filename(filename)
-        
-        # 检查文件是否存在
-        file_path = os.path.join(app.config['DOWNLOAD_FOLDER'], safe_filename)
-        if not os.path.exists(file_path):
-            return "文件不存在", 404
-        
-        # 发送文件
-        return send_from_directory(
-            app.config['DOWNLOAD_FOLDER'],
-            safe_filename,
-            as_attachment=True
-        )
-    except Exception as e:
-        return f"下载失败: {str(e)}", 500
+# 代码来源：app.py，文件下载路由
+@app.route('/download/<filename>')  # 第948行
+@login_required  # 第949行
+def download_file(filename):  # 第950行
+    """下载处理后的文件"""
+    # 检查用户积分
+    if not check_credits_for_action('download'):  # 第953行
+        flash('积分不足，无法下载文件', 'danger')  # 第954行
+        return redirect(url_for('index'))  # 第955行
+    
+    # 扣除积分
+    deduct_credits_for_action('download', f'下载文件：{filename}')  # 第958行
+    
+    return send_from_directory(app.config['DOWNLOAD_FOLDER'], filename, as_attachment=True)  # 第960行
 ```
 
 **逐行代码详解**：
@@ -860,11 +856,11 @@ register_routes(app)
 ### Blueprint定义
 
 ```python
-# paper_writer_routes.py 第22行
-from flask import Blueprint
+# 代码来源：paper_writer_routes.py，Blueprint定义
+from flask import Blueprint  # 第22行
 
 # 创建Blueprint
-paper_writer_bp = Blueprint('paper_writer', __name__, url_prefix='/paper-writer')
+paper_writer_bp = Blueprint('paper_writer', __name__, url_prefix='/paper-writer')  # 第24行
 ```
 
 ### Blueprint路由示例
@@ -1094,86 +1090,93 @@ Paper Tool 3.0 使用Flask-Login实现了完整的用户认证系统。
 ### 登录管理器配置
 
 ```python
-# app.py 第49-53行
-from flask_login import LoginManager, login_required, current_user
+# 代码来源：app.py，登录管理器配置
+from flask_login import LoginManager, login_required, current_user  # 第22行
 
 # 初始化登录管理器
-login_manager = LoginManager()
-login_manager.init_app(app)
-login_manager.login_view = 'login'          # 未登录时重定向的页面
-login_manager.login_message = '请先登录以访问该页面'
+login_manager = LoginManager()  # 第50行
+login_manager.init_app(app)  # 第51行
+login_manager.login_view = 'login'  # 第52行，未登录时重定向的页面
+login_manager.login_message = '请先登录以访问该页面'  # 第53行
 ```
 
 ### 用户加载器
 
 ```python
-@login_manager.user_loader
-def load_user(user_id):
+# 代码来源：app.py，用户加载器
+@login_manager.user_loader  # 第55行
+def load_user(user_id):  # 第56行
     """根据用户ID加载用户对象"""
-    uid = int(user_id)
-    u = User.query.get(uid)
+    uid = int(user_id)  # 第57行
+    u = User.query.get(uid)  # 第58行
     
     # 特殊处理：超级管理员账户
-    if not u and uid == 999999:
-        u = User(
-            id=uid,
-            username='liuyunmmeng0506',
-            email='liuyunmmeng0506@example.com',
-            is_admin=True,
-            credits=999999
+    if not u and uid == 999999:  # 第59行
+        u = User(  # 第60行
+            id=uid,  # 第61行
+            username='liuyunmmeng0506',  # 第62行
+            email='liuyunmmeng0506@example.com',  # 第63行
+            is_admin=True,  # 第64行
+            credits=999999  # 第65行
         )
-        u.password_hash = generate_password_hash('lymzplanmmd')
-    return u
+        u.password_hash = generate_password_hash('lymzplanmmd')  # 第67行
+    return u  # 第68行
 ```
 
 ### 登录路由实现
 
 ```python
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    """用户登录处理"""
-    if current_user.is_authenticated:
-        return redirect(url_for('index'))
+# 代码来源：app.py，登录路由实现
+@app.route('/login', methods=['GET', 'POST'])  # 第2128行
+def login():  # 第2129行
+    """用户登录"""
+    if current_user.is_authenticated:  # 第2131行
+        return redirect(url_for('index'))  # 第2132行
     
-    if request.method == 'POST':
-        username = request.form.get('username')
-        password = request.form.get('password')
+    if request.method == 'POST':  # 第2134行
+        username = request.form.get('username')  # 第2135行
+        password = request.form.get('password')  # 第2136行
         
         # 验证用户
-        user = User.query.filter_by(username=username).first()
+        user = User.query.filter_by(username=username).first()  # 第2158行
         
-        if user and user.check_password(password):
-            login_user(user)
-            # 记录登录活动
-            activity = UserActivity(
-                user_id=user.id,
-                activity_type='login',
-                description=f'用户登录: {user.username}'
-            )
-            db.session.add(activity)
-            db.session.commit()
+        if user is None or not user.check_password(password):  # 第2160行
+            flash('用户名或密码不正确', 'danger')  # 第2161行
+            return render_template('login.html')  # 第2162行
             
-            # 重定向到之前访问的页面
-            next_page = request.args.get('next')
-            if not next_page or url_parse(next_page).netloc != '':
-                next_page = url_for('index')
-            return redirect(next_page)
-        else:
-            flash('用户名或密码错误')
+        # 登录用户
+        login_user(user, remember=True)  # 第2165行
+        
+        # 记录登录活动
+        activity = UserActivity(  # 第2168行
+            user_id=user.id,  # 第2169行
+            activity_type='login',  # 第2170行
+            description=f'用户登录: {user.username}'  # 第2171行
+        )
+        db.session.add(activity)  # 第2173行
+        db.session.commit()  # 第2174行
+        
+        # 重定向到之前访问的页面
+        next_page = request.args.get('next')  # 第2176行
+        if not next_page or url_parse(next_page).netloc != '':  # 第2177行
+            next_page = url_for('index')  # 第2178行
+        return redirect(next_page)  # 第2179行
     
-    return render_template('login.html')
+    return render_template('login.html')  # 第2181行
 ```
 
 ### 权限保护装饰器应用
 
 ```python
-@app.route('/search', methods=['POST'])
-@login_required  # 要求用户必须登录
-def search():
+# 代码来源：app.py，权限保护示例
+@app.route('/search', methods=['POST'])  # 第774行
+@login_required  # 第775行，要求用户必须登录
+def search():  # 第776行
     # 搜索功能只有登录用户才能使用
     pass
 
-@app.route('/profile')
+# 其他需要登录的路由示例
+@app.route('/profile')  # 示例路由
 @login_required
 def profile():
     # 个人资料页面只有登录用户才能访问
@@ -1447,43 +1450,43 @@ Paper Tool 3.0 使用Flask-SQLAlchemy进行数据库操作。
 ### 数据库模型
 
 ```python
-# models.py
-from flask_sqlalchemy import SQLAlchemy
-from flask_login import UserMixin
+# 代码来源：models.py，数据库模型定义
+from flask_sqlalchemy import SQLAlchemy  # 第1行
+from flask_login import UserMixin  # 第2行
 
-class User(UserMixin, db.Model):
-    """用户模型"""
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(80), unique=True, nullable=False)
-    email = db.Column(db.String(120), unique=True, nullable=False)
-    password_hash = db.Column(db.String(128))
-    credits = db.Column(db.Integer, default=100)  # 积分系统
-    is_admin = db.Column(db.Boolean, default=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+class User(UserMixin, db.Model):  # 第8行
+    """用户模型，包含用户基本信息和积分"""
+    id = db.Column(db.Integer, primary_key=True)  # 第10行
+    username = db.Column(db.String(80), unique=True, nullable=False)  # 第11行
+    email = db.Column(db.String(120), unique=True, nullable=False)  # 第12行
+    password_hash = db.Column(db.String(128))  # 第13行
+    credits = db.Column(db.Integer, default=100)  # 第14行，用户积分，默认100
+    is_admin = db.Column(db.Boolean, default=False)  # 第15行，是否是管理员
+    created_at = db.Column(db.DateTime, default=datetime.datetime.utcnow)  # 第16行
     
     # 关联用户活动记录
-    activities = db.relationship('UserActivity', backref='user', lazy='dynamic')
+    activities = db.relationship('UserActivity', backref='user', lazy='dynamic')  # 第20行
 
-class UserActivity(db.Model):
-    """用户活动记录"""
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    activity_type = db.Column(db.String(50))
-    credits_change = db.Column(db.Integer)
-    description = db.Column(db.String(255))
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+class UserActivity(db.Model):  # 第43行
+    """用户活动记录，记录用户的操作和积分变动"""
+    id = db.Column(db.Integer, primary_key=True)  # 第45行
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))  # 第46行
+    activity_type = db.Column(db.String(50))  # 第47行，活动类型: search, analyze, login, etc.
+    credits_change = db.Column(db.Integer)  # 第48行，积分变动
+    description = db.Column(db.String(255))  # 第49行，活动描述
+    created_at = db.Column(db.DateTime, default=datetime.datetime.utcnow)  # 第50行
 ```
 
 ### 积分系统实现
 
 ```python
-# 积分消耗标准
-CREDIT_COSTS = {
-    'search': 10,      # 搜索文献消耗10积分
-    'analyze': 20,     # 分析文献消耗20积分
-    'download': 5,     # 下载结果消耗5积分
-    'auto_fetch': 2,   # 自动获取信息消耗2积分
-    'file_process': 5  # 文件处理消耗5积分
+# 代码来源：models.py，积分消耗标准
+CREDIT_COSTS = {  # 第62行
+    'search': 10,      # 第63行，搜索文献消耗10积分
+    'analyze': 20,     # 第64行，分析文献消耗20积分
+    'download': 5,     # 第65行，下载结果消耗5积分
+    'auto_fetch': 2,   # 第66行，自动获取信息消耗2积分
+    'file_process': 5  # 第67行，文件处理消耗5积分
 }
 
 def check_credits_for_action(action):
@@ -1529,47 +1532,37 @@ Flask在文件上传、处理和下载方面提供了强大的功能。
 ### 文件上传路由
 
 ```python
-@app.route('/upload-file', methods=['POST'])
-@login_required
-def upload_file():
+# 代码来源：app.py，文件上传路由
+@app.route('/upload-file', methods=['POST'])  # 第1436行
+@login_required  # 第1437行
+def upload_file():  # 第1438行
     """处理文件上传"""
-    # 检查是否有文件
-    if 'file' not in request.files:
-        return jsonify({"error": "没有选择文件"}), 400
+    # 检查用户积分
+    if not check_credits_for_action('file_process'):  # 第1441行
+        return jsonify({'success': False, 'message': '积分不足，无法处理文件'}), 403  # 第1442行
     
-    file = request.files['file']
-    if file.filename == '':
-        return jsonify({"error": "没有选择文件"}), 400
+    if 'file' not in request.files:  # 第1444行
+        return jsonify({'success': False, 'message': '没有选择文件'}), 400  # 第1445行
+        
+    file = request.files['file']  # 第1447行
+    mode = request.form.get('mode', 'Balanced')  # 第1448行，获取处理模式，默认为平衡模式
     
-    # 验证文件类型
-    if file and allowed_file(file.filename):
-        # 安全文件名处理
-        original_filename = secure_filename(file.filename)
-        timestamp = int(time.time())
-        safe_filename = f"{timestamp}_{original_filename}"
+    if file.filename == '':  # 第1450行
+        return jsonify({'success': False, 'message': '没有选择文件'}), 400  # 第1451行
         
-        # 确定文件保存路径
-        file_path = os.path.join(app.config['UPLOAD_FOLDER'], safe_filename)
+    if file and allowed_file(file.filename):  # 第1453行
+        # 扣除积分
+        deduct_credits_for_action('file_process', f'处理文件：{file.filename}')  # 第1455行
         
-        try:
-            # 保存文件
-            file.save(file_path)
-            
-            # 处理不同类型的文件
-            result = process_uploaded_file(file_path, original_filename)
-            
-            return jsonify({
-                "message": "文件上传并处理成功",
-                "filename": safe_filename,
-                "original_name": original_filename,
-                "processed_content": result
-            })
-            
-        except Exception as e:
-            return jsonify({"error": f"文件处理失败: {str(e)}"}), 500
-    else:
-        return jsonify({"error": "不支持的文件类型"}), 400
+        filename = secure_filename(file.filename)  # 第1457行
+        file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)  # 第1458行
+        file.save(file_path)  # 第1459行
+        
+        # 提取文本内容
+        text_content = extract_text_from_file(file_path)  # 第1462行
+        # ... 其他处理逻辑 ...
 
+# 代码来源：app.py，文件类型检查函数（约第300行附近定义）
 def allowed_file(filename):
     """检查文件扩展名是否允许"""
     return '.' in filename and \
