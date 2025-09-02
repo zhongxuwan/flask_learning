@@ -68,38 +68,43 @@ app.secret_key = secrets.token_hex(16)  # 第40行，生成随机密钥用于ses
 
 **第1行**：`from flask import Flask, render_template, request, jsonify, redirect, url_for, send_from_directory, flash, session`
 
-**导入模块详解**：
-- `Flask`：Flask框架的核心类，用于创建Web应用
-- `render_template`：模板渲染函数，将HTML模板转换为网页
-- `request`：请求对象，包含用户提交的所有数据
-- `jsonify`：将Python对象转换为JSON响应
-- `redirect`：重定向函数，跳转到其他页面
-- `url_for`：URL生成函数，根据函数名生成URL
-- `send_from_directory`：安全文件发送函数
-- `flash`：消息闪现，向用户显示临时消息
-- `session`：会话对象，存储用户会话数据
+**导入模块详解（第1行）**：
+- `from`：Python关键字，用于从模块中导入特定的函数或类
+- `import`：Python关键字，导入语句的核心部分
+- `Flask`：Flask框架的核心类，用于创建Web应用实例
+- `render_template`：模板渲染函数，将HTML模板文件转换为完整的网页
+- `request`：请求对象，包含用户通过HTTP提交的所有数据（表单、文件、URL参数等）
+- `jsonify`：JSON响应函数，将Python字典或列表转换为JSON格式的HTTP响应
+- `redirect`：重定向函数，让浏览器跳转到其他页面或URL
+- `url_for`：URL生成函数，根据视图函数名称动态生成对应的URL地址
+- `send_from_directory`：安全文件发送函数，用于安全地向用户发送文件
+- `flash`：消息闪现函数，向用户显示临时提示消息
+- `session`：会话对象，在服务器端存储用户的会话数据
 
-**第2行**：`from flask_login import LoginManager, login_user, logout_user, login_required, current_user`
+**第22行**：`from flask_login import LoginManager, login_user, logout_user, login_required, current_user`
 
-**用户认证模块详解**：
-- `LoginManager`：登录管理器类，管理用户登录状态
-- `login_user`：登录函数，设置用户为已登录状态
-- `logout_user`：登出函数，清除用户登录状态
-- `login_required`：装饰器，要求用户必须登录才能访问
-- `current_user`：当前用户对象，获取登录用户信息
+**用户认证模块详解（第22行）**：
+- `from flask_login import`：从flask_login扩展模块中导入用户认证相关功能
+- `LoginManager`：登录管理器类，负责管理整个应用的用户登录状态和会话
+- `login_user`：登录函数，将指定用户设置为已登录状态，在session中存储用户信息
+- `logout_user`：登出函数，清除用户的登录状态，删除session中的用户数据
+- `login_required`：装饰器函数，要求用户必须登录后才能访问被装饰的视图函数
+- `current_user`：当前用户代理对象，可以在任何地方获取当前登录用户的信息
 
-**第3行**：`from flask_sqlalchemy import SQLAlchemy`
-- `SQLAlchemy`：数据库ORM类，对象关系映射工具
+**第23行**：`import secrets`
 
-**第4行**：`import secrets`
-- `secrets`：Python安全模块，生成密码学安全的随机数
+**安全模块导入详解（第23行）**：
+- `import`：Python关键字，用于导入整个模块
+- `secrets`：Python标准库中的安全模块，专门用于生成密码学安全的随机数和令牌
 
-**第6行**：`app = Flask(__name__)`
+**第39行**：`app = Flask(__name__)`
 
-**Flask应用创建详解**：
-- `app`：应用实例变量，整个Web应用的核心对象
-- `Flask`：Flask类的构造函数
-- `__name__`：Python特殊变量，当前模块的名称
+**Flask应用创建详解（第39行）**：
+- `app`：应用实例变量名，存储Flask应用对象，整个Web应用的核心控制器
+- `=`：Python赋值运算符，将右侧创建的Flask实例赋值给左侧变量
+- `Flask`：Flask框架的主类，用于创建Web应用实例的构造函数
+- `(__name__)`：传递给Flask构造函数的参数，括号内是函数调用的参数
+- `__name__`：Python内置特殊变量，表示当前模块的名称
 
 **__name__的作用**：
 ```python
@@ -116,12 +121,16 @@ print(__name__)  # 输出：模块名（如app）
 4. 设置配置文件路径
 ```
 
-**第8行**：`app.secret_key = secrets.token_hex(16)`
+**第40行**：`app.secret_key = secrets.token_hex(16)`
 
-**密钥生成详解**：
-- `app.secret_key`：Flask应用的密钥属性
-- `secrets.token_hex(16)`：生成16字节的十六进制随机字符串
-- 生成32个字符的随机字符串（16字节 × 2个十六进制字符）
+**密钥生成详解（第40行）**：
+- `app.secret_key`：Flask应用实例的secret_key属性，用于存储应用的安全密钥
+- `=`：Python赋值运算符，将右侧生成的密钥赋值给secret_key属性
+- `secrets.token_hex(16)`：调用secrets模块的token_hex函数，生成16字节的十六进制随机字符串
+- `secrets`：之前在第23行导入的安全模块
+- `token_hex`：secrets模块中的函数，专门生成十六进制格式的安全令牌
+- `(16)`：传递给token_hex函数的参数，表示生成16字节长度的随机数据
+- 最终生成32个字符的随机字符串（16字节 × 2个十六进制字符 = 32字符）
 
 **密钥的用途**：
 ```python
@@ -150,13 +159,18 @@ db.init_app(app)  # 第47行
 
 **逐行代码详解**：
 
-**第1行**：`app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(current_dir, 'users.db')`
+**第43行**：`app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(current_dir, 'users.db')`
 
-**数据库URI配置详解**：
-- `app.config`：Flask配置字典，存储应用配置信息
-- `SQLALCHEMY_DATABASE_URI`：SQLAlchemy数据库连接字符串配置键
-- `'sqlite:///'`：SQLite数据库协议前缀
-- `os.path.join(current_dir, 'users.db')`：构建数据库文件完整路径
+**数据库URI配置详解（第43行）**：
+- `app.config`：Flask应用实例的config属性，这是一个字典对象，存储应用的所有配置信息
+- `['SQLALCHEMY_DATABASE_URI']`：字典的键，用于访问SQLAlchemy数据库连接字符串配置项
+- `=`：Python赋值运算符，将右侧构建的数据库URI赋值给配置项
+- `'sqlite:///'`：SQLite数据库的URI协议前缀，表示使用SQLite数据库
+- `+`：Python字符串连接运算符，将协议前缀与文件路径连接
+- `os.path.join(current_dir, 'users.db')`：使用os.path.join函数构建跨平台兼容的文件路径
+- `os.path.join`：Python标准库函数，用于安全地拼接文件路径
+- `current_dir`：当前目录变量，在文件开头定义
+- `'users.db'`：数据库文件名，SQLite数据库文件
 
 **数据库URI格式对比**：
 ```python
@@ -189,11 +203,13 @@ db_path = os.path.join(current_dir, 'users.db')
 # Windows: C:\Users\user\project\users.db
 ```
 
-**第2行**：`app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False`
+**第44行**：`app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False`
 
-**性能优化配置详解**：
-- `SQLALCHEMY_TRACK_MODIFICATIONS`：SQLAlchemy修改追踪配置
-- `False`：关闭对象修改追踪功能
+**性能优化配置详解（第44行）**：
+- `app.config`：Flask应用实例的配置字典，同第43行中的相同对象
+- `['SQLALCHEMY_TRACK_MODIFICATIONS']`：SQLAlchemy扩展的配置键，控制对象修改追踪功能
+- `=`：Python赋值运算符，设置配置项的值
+- `False`：Python布尔值，表示关闭对象修改追踪功能
 
 **修改追踪的影响**：
 ```python
@@ -213,11 +229,13 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 3. 减少不必要的系统开销
 ```
 
-**第4行**：`db.init_app(app)`
+**第47行**：`db.init_app(app)`
 
-**数据库初始化详解**：
-- `db`：SQLAlchemy数据库实例（在models.py中定义）
-- `init_app(app)`：将数据库实例与Flask应用绑定
+**数据库初始化详解（第47行）**：
+- `db`：SQLAlchemy数据库实例对象（在models.py文件中定义并导入）
+- `.init_app(app)`：调用SQLAlchemy实例的init_app方法
+- `init_app`：Flask扩展的标准初始化方法，用于将扩展与Flask应用绑定
+- `(app)`：传递Flask应用实例作为参数，建立数据库与应用的关联
 
 **工厂模式的体现**：
 ```python
@@ -380,12 +398,13 @@ def index():  # 第770行
 
 **逐行代码详解**：
 
-**第1行**：`@app.route('/')`
+**第769行**：`@app.route('/')`
 
-**路由装饰器详解**：
-- `@app.route`：Flask路由装饰器，将函数与URL绑定
-- `'/'`：根路径，对应网站首页
-- 装饰器语法：`@`符号表示装饰器
+**路由装饰器详解（第769行）**：
+- `@`：Python装饰器语法符号，表示这是一个装饰器
+- `app.route`：Flask应用实例的route方法，用于定义URL路由规则
+- `('/')`：传递给route方法的参数，定义URL路径
+- `'/'`：根路径字符串，对应网站的首页地址（如 http://localhost:5000/）
 
 **装饰器工作原理**：
 ```python
@@ -405,12 +424,13 @@ index = app.route('/')(index)
 3. 设置默认HTTP方法（GET）
 ```
 
-**第2行**：`def index():`
+**第770行**：`def index():`
 
-**视图函数定义**：
-- `def`：Python函数定义关键字
-- `index`：函数名，通常对应功能
-- `()`：无参数函数
+**视图函数定义（第770行）**：
+- `def`：Python关键字，用于定义函数
+- `index`：视图函数名称，通常与页面功能相关（index表示首页）
+- `()`：函数参数列表，此处为空表示无参数函数
+- `:`：Python函数定义语法，标志函数体开始
 
 **第3行**：`"""根据用户登录状态显示不同页面"""`
 
@@ -419,12 +439,14 @@ index = app.route('/')(index)
 - 函数的第一行：自动成为函数的帮助文档
 - 可以通过`help(index)`查看
 
-**第4行**：`if current_user.is_authenticated:`
+**第770行**：`if current_user.is_authenticated:`
 
-**用户认证检查详解**：
-- `current_user`：Flask-Login提供的当前用户代理对象
-- `is_authenticated`：用户认证状态属性
-- 返回布尔值：True（已登录）或False（未登录）
+**用户认证检查详解（第770行）**：
+- `if`：Python条件语句关键字，用于条件判断
+- `current_user`：Flask-Login扩展提供的当前用户代理对象，在第22行导入
+- `is_authenticated`：current_user对象的属性，表示用户认证状态
+- `:`：Python条件语句语法，标志条件体开始
+- 返回布尔值：True表示用户已登录，False表示用户未登录
 
 **current_user对象详解**：
 ```python
@@ -439,13 +461,16 @@ index = app.route('/')(index)
    current_user.is_anonymous      # True
 ```
 
-**第5行**：`return render_template('index.html', user=current_user, credits=current_user.credits)`
+**第771行**：`return render_template('index.html', user=current_user, credits=current_user.credits)`
 
-**模板渲染详解**：
-- `render_template`：Flask模板渲染函数
-- `'index.html'`：模板文件名（在templates/目录下）
-- `user=current_user`：将用户对象传递给模板
-- `credits=current_user.credits`：将积分信息传递给模板
+**模板渲染详解（第771行）**：
+- `return`：Python关键字，用于从函数返回值
+- `render_template`：Flask框架的模板渲染函数，在第1行导入
+- `('index.html', user=current_user, credits=current_user.credits)`：函数调用的参数列表
+- `'index.html'`：模板文件名参数，指向templates/目录下的HTML模板文件
+- `user=current_user`：关键字参数，将current_user对象传递给模板，在模板中可用{{user}}访问
+- `credits=current_user.credits`：关键字参数，将用户积分信息传递给模板
+- `current_user.credits`：访问current_user对象的credits属性，获取用户积分数量
 
 **参数传递机制**：
 ```python
@@ -461,11 +486,14 @@ render_template('index.html',
 # {% if user.is_admin %} - 条件判断
 ```
 
-**第6行**：`return render_template('landing.html')  # 未登录用户显示登陆页`
+**第772行**：`return render_template('landing.html')  # 未登录用户显示登陆页`
 
-**备选模板渲染**：
-- `landing.html`：着陆页模板，通常用于未登录用户
-- 没有传递额外参数，显示通用欢迎页面
+**备选模板渲染详解（第772行）**：
+- `return`：Python关键字，从函数返回值（与第771行相同的关键字）
+- `render_template`：Flask模板渲染函数（与第771行相同的函数）
+- `('landing.html')`：函数调用参数，只传递模板文件名
+- `'landing.html'`：着陆页模板文件名，用于未登录用户的欢迎页面
+- `# 未登录用户显示登陆页`：Python注释，解释这行代码的作用
 
 **条件渲染的设计模式**：
 ```python
@@ -525,12 +553,17 @@ def search():  # 第776行
 
 **逐行代码详解**：
 
-**第1行**：`@app.route('/search', methods=['POST'])`
+**第774行**：`@app.route('/search', methods=['POST'])`
 
-**HTTP方法限制详解**：
-- `methods=['POST']`：只接受POST请求
-- `POST`：HTTP方法，用于提交数据到服务器
-- 默认情况下，Flask路由只接受GET请求
+**HTTP方法限制详解（第774行）**：
+- `@`：Python装饰器语法符号（与第769行相同的符号）
+- `app.route`：Flask应用实例的route方法（与第769行相同的方法）
+- `('/search', methods=['POST'])`：route方法的参数列表
+- `'/search'`：URL路径字符串，定义搜索功能的访问路径
+- `methods=['POST']`：关键字参数，指定允许的HTTP方法
+- `methods`：参数名，用于限制HTTP请求方法
+- `['POST']`：Python列表，包含允许的HTTP方法
+- `'POST'`：HTTP方法名，用于提交数据到服务器
 
 **HTTP方法对比**：
 ```python
@@ -553,12 +586,13 @@ POST请求：
 3. 避免被浏览器缓存
 ```
 
-**第2行**：`@login_required`
+**第775行**：`@login_required`
 
-**权限装饰器详解**：
-- `@login_required`：Flask-Login提供的装饰器
-- 确保只有登录用户才能访问
-- 未登录用户自动重定向到登录页
+**权限装饰器详解（第775行）**：
+- `@`：Python装饰器语法符号（与第774行相同的符号）
+- `login_required`：Flask-Login扩展提供的装饰器函数，在第22行导入
+- 装饰器作用：确保只有已登录用户才能访问被装饰的视图函数
+- 未登录用户访问时：自动重定向到login_manager.login_view指定的登录页面
 
 **装饰器执行顺序**：
 ```python
@@ -573,11 +607,11 @@ def search():
 3. 如果未登录，重定向到 login_manager.login_view
 ```
 
-**第4行**：`global search_status`
+**第777行**：`global search_status`
 
-**全局状态变量详解**：
-- `global`：Python关键字，声明使用全局变量
-- `search_status`：搜索状态字典，跟踪搜索进度
+**全局状态变量详解（第777行）**：
+- `global`：Python关键字，声明在函数内部使用全局变量
+- `search_status`：全局变量名，是一个字典对象，用于跟踪搜索进度和状态
 
 **全局变量的使用场景**：
 ```python
@@ -596,19 +630,27 @@ search_status = {
 3. 避免重复搜索操作
 ```
 
-**第6行**：`if not check_credits_for_action('search'):`
+**第780行**：`if not check_credits_for_action('search'):`
 
-**积分检查详解**：
-- `check_credits_for_action`：自定义函数，检查积分是否足够
-- `'search'`：操作类型，对应积分消耗标准
-- 返回布尔值：True（足够）或False（不足）
+**积分检查详解（第780行）**：
+- `if`：Python条件语句关键字（与第770行相同的关键字）
+- `not`：Python逻辑运算符，对布尔值取反
+- `check_credits_for_action`：自定义函数，用于检查用户积分是否足够执行指定操作
+- `('search')`：函数调用参数
+- `'search'`：操作类型字符串，对应CREDIT_COSTS字典中的键
+- 整个表达式：检查用户积分是否不足以执行搜索操作
 
-**第7行**：`return jsonify({"error": "积分不足，无法执行搜索操作"}), 403`
+**第781行**：`return jsonify({"error": "积分不足，无法执行搜索操作"}), 403`
 
-**JSON错误响应详解**：
-- `jsonify()`：将Python字典转换为JSON响应
-- `{"error": "..."}`：错误信息字典
-- `, 403`：HTTP状态码，表示禁止访问
+**JSON错误响应详解（第781行）**：
+- `return`：Python关键字，从函数返回值（与第771、772行相同的关键字）
+- `jsonify`：Flask函数，将Python对象转换为JSON格式的HTTP响应，在第1行导入
+- `({"error": "积分不足，无法执行搜索操作"})`：jsonify函数的参数
+- `{"error": "积分不足，无法执行搜索操作"}`：Python字典，包含错误信息
+- `"error"`：字典的键，标识这是错误信息
+- `"积分不足，无法执行搜索操作"`：字典的值，具体的错误描述
+- `, 403`：返回语句的第二部分，HTTP状态码
+- `403`：HTTP状态码数字，表示禁止访问（Forbidden）
 
 **HTTP状态码含义**：
 ```python
@@ -635,12 +677,18 @@ search_status = {
 **并发控制响应**：
 - 状态码400：请求错误，因为当前状态不允许操作
 
-**第12行**：`keywords = request.form.get('keywords', '').strip()`
+**第788行**：`keywords = request.form.get('keywords', '').strip()`
 
-**表单数据获取详解**：
-- `request.form`：Flask请求对象的表单数据字典
-- `.get('keywords', '')`：安全获取keywords字段，默认值为空字符串
-- `.strip()`：去除字符串两端的空白字符
+**表单数据获取详解（第788行）**：
+- `keywords`：变量名，用于存储用户输入的搜索关键词
+- `=`：Python赋值运算符（与第39、40行相同的运算符）
+- `request.form`：Flask请求对象的form属性，包含POST表单数据
+- `request`：Flask请求对象，在第1行导入，包含HTTP请求的所有信息
+- `.get('keywords', '')`：调用字典的get方法安全获取数据
+- `get`：Python字典方法，安全地获取指定键的值
+- `'keywords'`：表单字段名，对应HTML表单中的input name属性
+- `''`：默认值参数，当keywords字段不存在时返回空字符串
+- `.strip()`：字符串方法，去除字符串两端的空白字符（空格、换行等）
 
 **安全数据获取模式**：
 ```python
@@ -656,19 +704,40 @@ keywords = request.form['keywords']  # 如果不存在会KeyError
 3. 代码更健壮
 ```
 
-**第13-15行**：参数获取和类型转换
+**第789行**：`num = int(request.form.get('num', 40))`
 
-**数据类型转换详解**：
-```python
-num = int(request.form.get('num', 40))          # 字符串转整数
-pub_type = request.form.get('pub_type', 'ALL').strip().upper()  # 标准化字符串
-analyse = request.form.get('analyse', 'false').lower() == 'true'  # 字符串转布尔值
+**整数类型转换详解（第789行）**：
+- `num`：变量名，存储用户要求的搜索结果数量
+- `=`：Python赋值运算符（与第788行相同的运算符）
+- `int()`：Python内置函数，将其他类型转换为整数类型
+- `request.form.get('num', 40)`：获取表单中的num字段
+- `request.form`：Flask请求对象的表单数据（与第788行相同的对象）
+- `get('num', 40)`：字典get方法，获取num字段，默认值40
+- `'num'`：表单字段名，对应搜索数量输入
+- `40`：整数默认值，当用户未指定时使用40作为搜索数量
 
-# 这些转换的作用：
-1. int()：确保数量是整数类型
-2. .upper()：统一转换为大写，避免大小写问题
-3. .lower() == 'true'：将字符串'true'转换为布尔值True
-```
+**第790行**：`pub_type = request.form.get('pub_type', 'ALL').strip().upper()`
+
+**字符串标准化详解（第790行）**：
+- `pub_type`：变量名，存储出版物类型筛选条件
+- `=`：Python赋值运算符（与第788、789行相同的运算符）
+- `request.form.get('pub_type', 'ALL')`：获取出版物类型字段
+- `'pub_type'`：表单字段名，对应期刊等级选择
+- `'ALL'`：字符串默认值，表示搜索所有类型的出版物
+- `.strip()`：字符串方法，去除两端空白字符（与第788行相同的方法）
+- `.upper()`：字符串方法，将所有字符转换为大写形式
+
+**第791行**：`analyse = request.form.get('analyse', 'false').lower() == 'true'`
+
+**布尔值转换详解（第791行）**：
+- `analyse`：变量名，存储是否需要分析论文的布尔值
+- `=`：Python赋值运算符（与前面行相同的运算符）
+- `request.form.get('analyse', 'false')`：获取分析选项字段
+- `'analyse'`：表单字段名，对应是否分析的复选框
+- `'false'`：字符串默认值，表示默认不进行分析
+- `.lower()`：字符串方法，将所有字符转换为小写形式
+- `== 'true'`：比较运算符，检查是否等于字符串'true'
+- 整个表达式：将字符串'true'转换为布尔值True，其他值转换为False
 
 ### 3. 搜索状态查询路由
 
